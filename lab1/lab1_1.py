@@ -98,14 +98,14 @@ def sierpinski_rec_helper(x,y,a,b,i):
 
     rectangle(x+temp_a,y+temp_b,temp_a,temp_b,0,255,255,255)
 
-    sierpinski_rec(x,y,temp_a,temp_b,i-1)
-    sierpinski_rec(x+temp_a,y,temp_a,temp_b,i-1)
-    sierpinski_rec(x+ 2*temp_a,y,temp_a,temp_b,i-1)
-    sierpinski_rec(x,y+temp_b,temp_a,temp_b,i-1)
-    sierpinski_rec(x,y+2*temp_b,temp_a,temp_b,i-1)
-    sierpinski_rec(x+2*temp_a,y+temp_b,temp_a,temp_b,i-1)
-    sierpinski_rec(x+2*temp_a,y+2*temp_b,temp_a,temp_b,i-1)
-    sierpinski_rec(x+temp_a,y+2*temp_b,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x,y,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x+temp_a,y,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x+ 2*temp_a,y,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x,y+temp_b,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x,y+2*temp_b,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x+2*temp_a,y+temp_b,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x+2*temp_a,y+2*temp_b,temp_a,temp_b,i-1)
+    sierpinski_rec_helper(x+temp_a,y+2*temp_b,temp_a,temp_b,i-1)
 
 # 5.0
 def sierpinski_tri(A,B,C,i):
@@ -137,12 +137,12 @@ def sierpinski_tri_helper(A,B,C,i):
     sierpinski_tri_helper(nCA,nBC,C,i-1)
 
 
-
-
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT)
-
-    sierpinski_tri([-100,-100],[100,-100], [0,73.20508075688772], 5)
+    triangle()
+    # rectangle(0,0,25,25,0)
+    # sierpinski_rec()
+    # sierpinski_tri([-100,-100],[100,-100], [0,73.20508075688772], 5)
 
     glFlush()
 
