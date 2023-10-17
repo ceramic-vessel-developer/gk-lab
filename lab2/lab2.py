@@ -97,6 +97,26 @@ def lines(N):
             glEnd()
 
 
+def triangles(N,color):
+    u, v = compute_uv(N)
+    points_array = compute_points(u, v)
+
+    for i in range(N-1):
+        for j in range(N-1):
+            glBegin(GL_TRIANGLES)
+            glColor3ui(((i+j)*color)%255, ((i+j)+color)%255, ((i-j)*color)%255)
+            glVertex3f(*points_array[i][j])
+            glColor3ui(((i * j) * color) % 255, ((i * j) * color) % 255, ((i + j) * color) % 255)
+            glVertex3f(*points_array[i+1][j])
+            glVertex3f(*points_array[i][j+1])
+            glEnd()
+            glBegin(GL_TRIANGLES)
+            glVertex3f(*points_array[i+1][j])
+            glVertex3f(*points_array[i][j+1])
+            glVertex3f(*points_array[i+1][j + 1])
+            glEnd()
+
+
 
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -105,8 +125,8 @@ def render(time):
     spin(time)
     #axes()
     # points(100)
-    lines(25)
-
+    # lines(25)
+    triangles(30)
     glFlush()
 
 
