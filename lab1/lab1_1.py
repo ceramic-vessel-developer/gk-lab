@@ -139,10 +139,10 @@ def sierpinski_tri_helper(A,B,C,i):
 
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT)
-    triangle()
-    # rectangle(0,0,25,25,0)
+    # triangle()
+    # rectangle(0,0,25,50,50)
     # sierpinski_rec()
-    # sierpinski_tri([-100,-100],[100,-100], [0,73.20508075688772], 5)
+    sierpinski_tri([-100,-100],[100,-100], [0,73.20508075688772], 5)
 
     glFlush()
 
