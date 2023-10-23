@@ -10,6 +10,7 @@ from OpenGL.GLU import *
 
 COLORS = []
 
+
 def startup():
     update_viewport(None, 400, 400)
     glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -44,6 +45,7 @@ def axes():
     glEnd()
 
 
+# HELPERS START
 def compute_xyz(u, v):
     x = (-90 * u**5 + 225 * u**4 - 270 * u**3 + 180 * u**2 - 45 * u) * math.cos(math.pi*v)
     y = 160 * u**4 - 320 * u**3 + 160 * u**2 - 5
@@ -72,6 +74,20 @@ def compute_uv(N):
     return u, v
 
 
+def colors(N):
+    global COLORS
+
+    COLORS = [[[50] * 3 for _ in range(N)] for _ in range(N)]
+
+    for i in range(N):
+        for j in range(N):
+            COLORS[i][j][0] = random.randint(0, 255)
+            COLORS[i][j][1] = random.randint(0, 255)
+            COLORS[i][j][2] = random.randint(0, 255)
+# HELPERS END
+
+
+# 3.0
 def points(N):
     u, v = compute_uv(N)
     points_array = compute_points(u, v)
@@ -83,6 +99,7 @@ def points(N):
     glEnd()
 
 
+# 3.5
 def lines(N):
     u, v = compute_uv(N)
     points_array = compute_points(u, v)
@@ -99,6 +116,7 @@ def lines(N):
             glEnd()
 
 
+# 4.0
 def triangles(N):
     u, v = compute_uv(N)
     points_array = compute_points(u, v)
@@ -127,17 +145,22 @@ def triangles(N):
             glEnd()
 
 
-def colors(N):
-    global COLORS
+# 4.5
+def triangles_strip(N):
+    u, v = compute_uv(N)
+    points_array = compute_points(u, v)
 
-    COLORS = [[[50] * 3 for _ in range(N)] for _ in range(N)]
+    if not COLORS:
+        colors(N)
 
-    for i in range(N):
+    for i in range(N - 1):
+        glBegin(GL_TRIANGLE_STRIP)
         for j in range(N):
-            COLORS[i][j][0] = random.randint(0, 255)
-            COLORS[i][j][1] = random.randint(0, 255)
-            COLORS[i][j][2] = random.randint(0, 255)
-
+            glColor3ub(COLORS[i][j][0], COLORS[i][j][1], COLORS[i][j][2])
+            glVertex3f(*points_array[i][j])
+            glColor3ub(COLORS[i+1][j][0], COLORS[i+1][j][1], COLORS[i+1][j][2])
+            glVertex3f(*points_array[i+1][j])
+        glEnd()
 
 
 def render(time):
@@ -148,7 +171,8 @@ def render(time):
     axes()
     # points(100)
     # lines(25)
-    triangles(30)
+    # triangles(30)
+    triangles_strip(30)
     glFlush()
 
 
