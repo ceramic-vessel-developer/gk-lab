@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import math
+import random
 import sys
 
 from glfw.GLFW import *
@@ -7,6 +8,7 @@ from glfw.GLFW import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+COLORS = []
 
 def startup():
     update_viewport(None, 400, 400)
@@ -97,24 +99,44 @@ def lines(N):
             glEnd()
 
 
-def triangles(N,color):
+def triangles(N):
     u, v = compute_uv(N)
     points_array = compute_points(u, v)
+
+    if not COLORS:
+        colors(N)
+
 
     for i in range(N-1):
         for j in range(N-1):
             glBegin(GL_TRIANGLES)
-            glColor3ui(((i+j)*color)%255, ((i+j)+color)%255, ((i-j)*color)%255)
+            glColor3ub(COLORS[i][j][0], COLORS[i][j][1], COLORS[i][j][2])
             glVertex3f(*points_array[i][j])
-            glColor3ui(((i * j) * color) % 255, ((i * j) * color) % 255, ((i + j) * color) % 255)
+            glColor3ub(COLORS[i+1][j][0], COLORS[i+1][j][1], COLORS[i+1][j][2])
             glVertex3f(*points_array[i+1][j])
+            glColor3ub(COLORS[i][j+1][0], COLORS[i][j+1][1], COLORS[i][j+1][2])
             glVertex3f(*points_array[i][j+1])
             glEnd()
             glBegin(GL_TRIANGLES)
+            glColor3ub(COLORS[i+1][j][0], COLORS[i+1][j][1], COLORS[i+1][j][2])
             glVertex3f(*points_array[i+1][j])
+            glColor3ub(COLORS[i][j+1][0], COLORS[i][j+1][1], COLORS[i][j+1][2])
             glVertex3f(*points_array[i][j+1])
+            glColor3ub(COLORS[i+1][j+1][0], COLORS[i+1][j+1][1], COLORS[i+1][j+1][2])
             glVertex3f(*points_array[i+1][j + 1])
             glEnd()
+
+
+def colors(N):
+    global COLORS
+
+    COLORS = [[[50] * 3 for _ in range(N)] for _ in range(N)]
+
+    for i in range(N):
+        for j in range(N):
+            COLORS[i][j][0] = random.randint(0, 255)
+            COLORS[i][j][1] = random.randint(0, 255)
+            COLORS[i][j][2] = random.randint(0, 255)
 
 
 
@@ -123,7 +145,7 @@ def render(time):
     glLoadIdentity()
 
     spin(time)
-    #axes()
+    axes()
     # points(100)
     # lines(25)
     triangles(30)
