@@ -162,6 +162,72 @@ def triangles_strip(N):
             glVertex3f(*points_array[i+1][j])
         glEnd()
 
+# 5.0
+def sierpinski_pyramid(N):
+    sierpinski_helper(-5.0,-5.0,-5.0,10,10,N)
+
+
+def sierpinski_helper(x,y,z,a,h,N):
+    # base
+    if not N:
+        b = (x, y, z)
+        c = (x + a, y, z)
+        d = (x, y, z + a)
+        e = (x + a, y, z + a)
+        f = (x + a/2, y + h, z + a/2)
+
+        pyramid(b,c,d,e,f)
+        return
+
+
+
+    # recursion
+    sierpinski_helper(x, y, z, a / 2, h / 2, N - 1)
+    sierpinski_helper(x + a / 2, y, z, a / 2, h / 2, N - 1)
+    sierpinski_helper(x, y, z + a / 2, a / 2, h / 2, N - 1)
+    sierpinski_helper(x + a / 2, y, z + a / 2, a / 2, h / 2, N - 1)
+    sierpinski_helper(x + a / 4, y + h / 2, z + a / 4, a / 2, h / 2, N - 1)
+
+
+def pyramid(a,b,c,d,e):
+    # base
+    glBegin(GL_TRIANGLE_STRIP)
+    glColor3ub(255, 153, 51)
+    glVertex3f(*a)
+    glVertex3f(*b)
+    glVertex3f(*c)
+    glVertex3f(*d)
+    glEnd()
+
+    # walls
+    glBegin(GL_TRIANGLES)
+    glColor3ub(255, 153, 51)
+    glVertex3f(*a)
+    glVertex3f(*b)
+    glVertex3f(*e)
+    glEnd()
+
+    glBegin(GL_TRIANGLES)
+    glColor3ub(255, 153, 51)
+    glVertex3f(*c)
+    glVertex3f(*b)
+    glVertex3f(*e)
+    glEnd()
+
+    glBegin(GL_TRIANGLES)
+    glColor3ub(255, 153, 51)
+    glVertex3f(*c)
+    glVertex3f(*d)
+    glVertex3f(*e)
+    glEnd()
+
+    glBegin(GL_TRIANGLES)
+    glColor3ub(255, 153, 51)
+    glVertex3f(*a)
+    glVertex3f(*d)
+    glVertex3f(*e)
+    glEnd()
+
 
 def render(time):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -172,7 +238,8 @@ def render(time):
     # points(100)
     # lines(25)
     # triangles(30)
-    triangles_strip(30)
+    # triangles_strip(30)
+    sierpinski_pyramid(3)
     glFlush()
 
 
