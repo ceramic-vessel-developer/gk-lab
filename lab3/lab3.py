@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import math
 
 from glfw.GLFW import *
 
@@ -22,8 +23,9 @@ delta_x = 0
 mouse_y_pos_old = 0
 delta_y = 0
 
-scale = 0
+scale = 5
 
+camera = True
 
 def startup():
     update_viewport(None, 400, 400)
@@ -88,25 +90,49 @@ def example_object():
     gluDeleteQuadric(quadric)
 
 
+def change_eye():
+    global viewer
+    viewer[0] = scale * math.cos(theta * (math.pi / 180)) * math.cos(phi * (math.pi / 180))
+    viewer[1] = scale * math.sin(phi * (math.pi / 180))
+    viewer[2] = scale * math.sin(theta * (math.pi / 180)) * math.cos(phi * (math.pi / 180))
+
 def render(time):
-    global theta, phi, scale
+    global theta, phi, scale, viewer
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
-
-    gluLookAt(viewer[0], viewer[1], viewer[2],
-              0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    if phi > 90 and phi<270:
+        gluLookAt(viewer[0], viewer[1], viewer[2],
+                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    else:
+        gluLookAt(viewer[0], viewer[1], viewer[2],
+                  0.0, 0.0, 0.0, 0.0, -1.0, 0.0)
 
     if left_mouse_button_pressed:
         theta += delta_x * pix2angle
         phi += delta_y * pix2angle
+        theta = theta%360
+        phi = phi%360
+
+        if camera:
+            change_eye()
+
 
     if right_mouse_button_pressed:
-        scale += (delta_x * pix2angle + delta_y * pix2angle)*0.01
+        scale += (delta_y * pix2angle)*0.1
+        if scale > 10:
+            scale = 10
+        elif scale < 1:
+            scale = 1
 
-    glRotatef(theta, 0.0, 1.0, 0.0)
-    glRotatef(phi, 1.0, 0.0, 0.0)
-    glScale(scale,scale,scale)
+        if camera:
+            change_eye()
+
+
+    if not camera:
+        glRotatef(theta, 0.0, 1.0, 0.0)
+        glRotatef(phi, 1.0, 0.0, 0.0)
+        glScale(scale,scale,scale)
 
     axes()
     example_object()
@@ -133,8 +159,13 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
+    global camera
+
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
+
+    if key == GLFW_KEY_C and action == GLFW_PRESS:
+        camera = not camera
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
