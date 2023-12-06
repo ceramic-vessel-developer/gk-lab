@@ -101,12 +101,16 @@ def render(time):
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
-    if phi > 90 and phi<270:
-        gluLookAt(viewer[0], viewer[1], viewer[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    if camera:
+        if phi > 90 and phi<270:
+            gluLookAt(viewer[0], viewer[1], viewer[2],
+                      0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+        else:
+            gluLookAt(viewer[0], viewer[1], viewer[2],
+                      0.0, 0.0, 0.0, 0.0, -1.0, 0.0)
     else:
         gluLookAt(viewer[0], viewer[1], viewer[2],
-                  0.0, 0.0, 0.0, 0.0, -1.0, 0.0)
+                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
 
     if left_mouse_button_pressed:
         theta += delta_x * pix2angle
@@ -159,13 +163,19 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
-    global camera
+    global camera, scale, viewer
 
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
 
     if key == GLFW_KEY_C and action == GLFW_PRESS:
         camera = not camera
+
+        if camera:
+            scale = 5
+        else:
+            scale = 1
+
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
