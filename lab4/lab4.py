@@ -25,7 +25,7 @@ mat_shininess = 20.0
 light_ambient = [0.1, 0.1, 0.0, 1.0]
 light_diffuse = [0.8, 0.8, 0.0, 1.0]
 light_specular = [1.0, 1.0, 1.0, 1.0]
-light_position = [-5.0, -5.0, 10.0, 1.0]
+light_position = [0.0, 0.0, 10.0, 1.0]
 
 att_constant = 1.0
 att_linear = 0.05
@@ -41,15 +41,21 @@ att_constant1 = 1.0
 att_linear1 = 0.1
 att_quadratic1 = 0.005
 
+choice = [0, 0]
+
 def startup():
     update_viewport(None, 400, 400)
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glEnable(GL_DEPTH_TEST)
-
     glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient)
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse)
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular)
     glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess)
+
+    lights()
+
+
+def lights():
 
     # LIGHT0
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient)
@@ -74,7 +80,7 @@ def startup():
     glShadeModel(GL_SMOOTH)
     glEnable(GL_LIGHTING)
     glEnable(GL_LIGHT0)
-    glEnable(GL_LIGHT1)
+    # glEnable(GL_LIGHT1)
 
 
 def shutdown():
@@ -99,6 +105,7 @@ def render(time):
     gluQuadricDrawStyle(quadric, GLU_FILL)
     gluSphere(quadric, 3.0, 10, 10)
     gluDeleteQuadric(quadric)
+    # lights()
 
     glFlush()
 
@@ -122,8 +129,67 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
+    global choice
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
+
+    if key == GLFW_KEY_C and action == GLFW_PRESS:
+        choice[0] += 1
+        choice[1] += 1 if choice[0] == 3 else 0
+        choice[0] = choice[0] % 3
+        choice[1] = choice[1] % 3
+        print_choice()
+
+    if key == GLFW_KEY_U and action == GLFW_PRESS:
+        increase_colour(0.1)
+
+    if key == GLFW_KEY_D and action == GLFW_PRESS:
+        decrease_colour(0.1)
+
+
+def increase_colour(step):
+    global light_ambient, light_diffuse, light_specular
+    if choice[1] == 0:
+        if step + light_ambient[choice[0]] <= 1.0:
+            light_ambient[choice[0]] += step
+        print(light_ambient)
+    elif choice[1] == 1:
+        if step + light_diffuse[choice[0]] <= 1.0:
+            light_diffuse[choice[0]] += step
+        print(light_diffuse)
+    else:
+        if step + light_specular[choice[0]] <= 1.0:
+            light_specular[choice[0]] += step
+        print(light_specular)
+    lights()
+
+
+
+def decrease_colour(step):
+    global light_ambient, light_diffuse, light_specular
+    if choice[1] == 0:
+        if light_ambient[choice[0]] - step >= 0.0:
+            light_ambient[choice[0]] -= step
+        print(light_ambient)
+    elif choice[1] == 1:
+        if light_diffuse[choice[0]] - step >= 0.0:
+            light_diffuse[choice[0]] -= step
+        print(light_diffuse)
+    else:
+        if light_specular[choice[0]] - step >= 0.0:
+            light_specular[choice[0]] -= step
+        print(light_specular)
+    lights()
+
+
+
+def print_choice():
+    if choice[1] == 0:
+        print(f"Changing ambient, argument num{choice[0]}")
+    elif choice[1] == 1:
+        print(f"Changing diffuse, argument num{choice[0]}")
+    else:
+        print(f"Changing specular, argument num{choice[0]}")
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
