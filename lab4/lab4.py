@@ -6,7 +6,7 @@ from glfw.GLFW import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-import math
+import math, numpy
 
 
 viewer = [0.0, 0.0, 10.0]
@@ -15,6 +15,8 @@ theta = 0.0
 phi = 0.0
 pix2angle = 1.0
 R = 10
+
+vectors_visible = 0
 
 left_mouse_button_pressed = 0
 mouse_x_pos_old = 0
@@ -117,11 +119,11 @@ def render(time):
     light_position[2] = R * math.sin(theta * math.pi / 180) * math.cos(phi * math.pi / 180)
     glLightfv(GL_LIGHT0, GL_POSITION, light_position)
 
-    quadric = gluNewQuadric()
-    gluQuadricDrawStyle(quadric, GLU_FILL)
-    gluSphere(quadric, 3.0, 10, 10)
-    gluDeleteQuadric(quadric)
-
+    # quadric = gluNewQuadric()
+    # gluQuadricDrawStyle(quadric, GLU_FILL)
+    # gluSphere(quadric, 3.0, 10, 10)
+    # gluDeleteQuadric(quadric)
+    egg(20)
     # light visualization
     glTranslatef(light_position[0], light_position[1], light_position[2])
     quadric = gluNewQuadric()
@@ -133,6 +135,88 @@ def render(time):
 
 
     glFlush()
+
+
+def egg(N):
+    u, v = compute_uv(N)
+    points_array, vector_array = compute_points(u, v)
+
+    for i in range(N - 1):
+        glBegin(GL_TRIANGLE_STRIP)
+        for j in range(N):
+            glNormal3fv(vector_array[i][j])
+            glVertex3f(*points_array[i][j])
+            glNormal3fv(vector_array[i+1][j])
+            glVertex3f(*points_array[i+1][j])
+        glEnd()
+    if vectors_visible:
+        glBegin(GL_LINES)
+        for i in range(N):
+            for j in range(N):
+                glVertex3fv(points_array[i][j])
+                glVertex3fv(numpy.add(vector_array[i][j],  points_array[i][j]))
+        glEnd()
+
+
+def compute_points(u, v):
+    N = len(u)
+    points_array = [[[0] * 3 for _ in range(N) ]for _ in range(N)]
+    vector_array = []
+
+    for i in range(N):
+        vector_array.append([])
+        for j in range(N):
+            points_array[i][j] = compute_xyz(u[i], v[j])
+            vector = compute_vector(u[i], v[j])
+            if i > N / 2:
+                vector = [-1 * v for v in vector]
+            vector_array[i].append(vector)
+
+    vector_array[0][0] = [0, -1, 0]
+    vector_array[N-1][N-1] = [0, 1, 0]
+
+    return points_array, vector_array
+
+
+def compute_uv(N):
+    u = [(1/(N-1)) * i for i in range(N-1)]
+    u.append(1.0)
+    v = [(1/(N-1)) * i for i in range(N-1)]
+    v.append(1.0)
+
+    return u, v
+
+
+def compute_xyz(u, v):
+    x = (-90 * u**5 + 225 * u**4 - 270 * u**3 + 180 * u**2 - 45 * u) * math.cos(math.pi*v)
+    y = 160 * u**4 - 320 * u**3 + 160 * u**2 - 5
+    z = (-90 * u**5 + 225 * u**4 - 270 * u**3 + 180 * u**2 - 45 * u) * math.sin(math.pi*v)
+
+    return [x, y, z]
+
+
+def compute_vector(u,v):
+    x_u = (-450 * u ** 4 + 900 * u ** 3 - 810 * u ** 2 + 360 *
+        u - 45) * math.cos(math.pi * v)
+    x_v = math.pi * (
+            90 * u ** 5 - 225 * u ** 4 + 270 * u ** 3 - 180 * u ** 2 + 45 *
+            u) * math.sin(math.pi * v)
+    y_u = (640 * u ** 3 - 960 * u ** 2 + 320 * u)
+    y_v = 0
+    z_u = (-450 * u ** 4 + 900 * u ** 3 - 810 * u ** 2 + 360 *
+        u - 45) * math.sin(math.pi * v)
+    z_v = -math.pi * (
+            90 * u ** 5 - 225 * u ** 4 + 270 * u ** 3 - 180 * u ** 2 + 45 *
+            u) * math.cos(math.pi * v)
+
+    vector = [y_u * z_v - z_u * y_v, z_u * x_v - x_u * z_v, x_u * y_v - y_u * x_v]
+
+    length = math.sqrt(vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2)
+    if length == 0:
+        length = 1
+    vector = [vector[0] / length, vector[1] / length, vector[2] / length]
+
+    return vector
 
 
 def update_viewport(window, width, height):
@@ -154,7 +238,7 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
-    global choice
+    global choice, vectors_visible
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
 
@@ -171,6 +255,8 @@ def keyboard_key_callback(window, key, scancode, action, mods):
     if key == GLFW_KEY_D and action == GLFW_PRESS:
         decrease_colour(0.1)
 
+    if key == GLFW_KEY_V and action == GLFW_PRESS:
+        vectors_visible = not vectors_visible
 
 def increase_colour(step):
     global light_ambient, light_diffuse, light_specular
