@@ -9,7 +9,7 @@ from OpenGL.GLU import *
 from PIL import Image
 
 
-viewer = [0.0, 0.0, 10.0]
+viewer = [0.0, 0.0, 15.0]
 
 theta = 0.0
 pix2angle = 1.0
@@ -34,6 +34,8 @@ att_constant = 1.0
 att_linear = 0.05
 att_quadratic = 0.001
 
+images = [Image.open("tekstura.tga"),Image.open("dio.tga"),Image.open("kwadrata.tga")]
+choice = 0
 
 def startup():
     update_viewport(None, 400, 400)
@@ -67,7 +69,8 @@ def startup():
     # image = Image.open("tekstura.tga")
 
     # 4.0
-    image = Image.open("kwadrata.tga")
+    # image = Image.open("kwadrata.tga")
+    image = images[choice]
 
     glTexImage2D(
         GL_TEXTURE_2D, 0, 3, image.size[0], image.size[1], 0,
@@ -146,6 +149,17 @@ def pyramid():
     glEnd()
 
 
+# 4.5
+def change_image():
+    image = images[choice]
+
+    glTexImage2D(
+        GL_TEXTURE_2D, 0, 3, image.size[0], image.size[1], 0,
+        GL_RGB, GL_UNSIGNED_BYTE, image.tobytes("raw", "RGB", 0, -1)
+    )
+
+
+
 
 def render(time):
     global theta
@@ -186,11 +200,16 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
-    global t_pressed
+    global t_pressed, choice
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
     if key == GLFW_KEY_T and action == GLFW_PRESS:
         t_pressed = not t_pressed
+    if key == GLFW_KEY_C and action == GLFW_PRESS:
+        choice += 1
+        choice = choice % 3
+        change_image()
+
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
