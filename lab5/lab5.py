@@ -18,6 +18,8 @@ left_mouse_button_pressed = 0
 mouse_x_pos_old = 0
 delta_x = 0
 
+t_pressed = 0
+
 mat_ambient = [1.0, 1.0, 1.0, 1.0]
 mat_diffuse = [1.0, 1.0, 1.0, 1.0]
 mat_specular = [1.0, 1.0, 1.0, 1.0]
@@ -62,7 +64,10 @@ def startup():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
 
-    image = Image.open("tekstura.tga")
+    # image = Image.open("tekstura.tga")
+
+    # 4.0
+    image = Image.open("kwadrata.tga")
 
     glTexImage2D(
         GL_TEXTURE_2D, 0, 3, image.size[0], image.size[1], 0,
@@ -72,6 +77,74 @@ def startup():
 
 def shutdown():
     pass
+
+
+# 3.0
+def square():
+    glBegin(GL_TRIANGLE_STRIP)
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(-5.0, 5.0, 5.0)
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(-5.0, -5.0, 5.0)
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(5.0, 5.0, 5.0)
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(5.0, -5.0, 5.0)
+
+    glEnd()
+
+
+# 3.5
+def pyramid():
+    # square
+    if not t_pressed:
+        glBegin(GL_TRIANGLE_STRIP)
+        glTexCoord2f(0.0, 1.0)
+        glVertex3f(-5.0, 5.0, 5.0)
+        glTexCoord2f(0.0, 0.0)
+        glVertex3f(-5.0, -5.0, 5.0)
+
+        glTexCoord2f(1.0, 1.0)
+        glVertex3f(5.0, 5.0, 5.0)
+        glTexCoord2f(1.0, 0.0)
+        glVertex3f(5.0, -5.0, 5.0)
+
+        glEnd()
+
+    glBegin(GL_TRIANGLES)
+    # triangles
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(5.0, -5.0, 5.0)
+    glTexCoord2f(0.5, 0.5)
+    glVertex3f(0.0, 0.0, -5.0)
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(5.0, 5.0, 5.0)
+
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(-5.0, 5.0, 5.0)
+    glTexCoord2f(0.0, 1.0)
+    glVertex3f(5.0, 5.0, 5.0)
+    glTexCoord2f(0.5, 0.5)
+    glVertex3f(0.0, 0.0, -5.0)
+
+    glTexCoord2f(1.0, 1.0)
+    glVertex3f(-5.0, 5.0, 5.0)
+    glTexCoord2f(0.5, 0.5)
+    glVertex3f(0.0, 0.0, -5.0)
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(-5.0, -5.0, 5.0)
+
+    glTexCoord2f(0.0, 0.0)
+    glVertex3f(5.0, -5.0, 5.0)
+    glTexCoord2f(1.0, 0.0)
+    glVertex3f(-5.0, -5.0, 5.0)
+    glTexCoord2f(0.5, 0.5)
+    glVertex3f(0.0, 0.0, -5.0)
+
+
+
+    glEnd()
+
 
 
 def render(time):
@@ -87,17 +160,9 @@ def render(time):
         theta += delta_x * pix2angle
 
     glRotatef(theta, 0.0, 1.0, 0.0)
-    # 3.0
-    glBegin(GL_TRIANGLE_STRIP)
-    glTexCoord2f(0.0, 0.0)
-    glVertex3f(-5.0, -5.0, 0.0)
-    glTexCoord2f(0.0, 1.0)
-    glVertex3f(5.0, -5.0, 0.0)
-    glTexCoord2f(1.0, 0.0)
-    glVertex3f(-5.0, 5.0, 0.0)
-    glTexCoord2f(1.0, 1.0)
-    glVertex3f(5.0, 5.0, 0.0)
-    glEnd()
+
+    # square()
+    pyramid()
 
     glFlush()
 
@@ -121,8 +186,11 @@ def update_viewport(window, width, height):
 
 
 def keyboard_key_callback(window, key, scancode, action, mods):
+    global t_pressed
     if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
         glfwSetWindowShouldClose(window, GLFW_TRUE)
+    if key == GLFW_KEY_T and action == GLFW_PRESS:
+        t_pressed = not t_pressed
 
 
 def mouse_motion_callback(window, x_pos, y_pos):
