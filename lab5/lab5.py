@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import sys
+import math
+import numpy
 
 from glfw.GLFW import *
 
@@ -159,6 +161,95 @@ def change_image():
     )
 
 
+def egg(N):
+    u, v = compute_uv(N)
+    points_array, vector_array = compute_points(u, v)
+
+    for i in range(N//2):
+        glBegin(GL_TRIANGLE_STRIP)
+        for j in range(N):
+            glNormal3fv(vector_array[i][j])
+            glTexCoord2f(v[j],2*u[i])
+            glVertex3f(*points_array[i][j])
+            glNormal3fv(vector_array[i+1][j])
+            glTexCoord2f(v[j],2*u[i+1])
+            glVertex3f(*points_array[i+1][j])
+        glEnd()
+    for i in range(N // 2, N-1):
+        glBegin(GL_TRIANGLE_STRIP)
+        for j in range(N):
+            glNormal3fv(vector_array[i + 1][j])
+            glTexCoord2f(v[j], 1.0 - 2 * u[i + 1])
+            glVertex3f(*points_array[i + 1][j])
+            glNormal3fv(vector_array[i][j])
+            glTexCoord2f(v[j], 1.0 - 2 * u[i])
+            glVertex3f(*points_array[i][j])
+
+
+
+        glEnd()
+
+
+
+def compute_points(u, v):
+    N = len(u)
+    points_array = [[[0] * 3 for _ in range(N) ]for _ in range(N)]
+    vector_array = []
+
+    for i in range(N):
+        vector_array.append([])
+        for j in range(N):
+            points_array[i][j] = compute_xyz(u[i], v[j])
+            vector = compute_vector(u[i], v[j])
+            if i > N / 2:
+                vector = [-1 * v for v in vector]
+            vector_array[i].append(vector)
+
+    vector_array[0][0] = [0, -1, 0]
+    vector_array[N-1][N-1] = [0, 1, 0]
+
+    return points_array, vector_array
+
+
+def compute_uv(N):
+    u = [(1/(N-1)) * i for i in range(N-1)]
+    u.append(1.0)
+    v = [(1/(N-1)) * i for i in range(N-1)]
+    v.append(1.0)
+
+    return u, v
+
+
+def compute_xyz(u, v):
+    x = (-90 * u**5 + 225 * u**4 - 270 * u**3 + 180 * u**2 - 45 * u) * math.cos(math.pi*v)
+    y = 160 * u**4 - 320 * u**3 + 160 * u**2 - 5
+    z = (-90 * u**5 + 225 * u**4 - 270 * u**3 + 180 * u**2 - 45 * u) * math.sin(math.pi*v)
+
+    return [x, y, z]
+
+
+def compute_vector(u,v):
+    x_u = (-450 * u ** 4 + 900 * u ** 3 - 810 * u ** 2 + 360 *
+        u - 45) * math.cos(math.pi * v)
+    x_v = math.pi * (
+            90 * u ** 5 - 225 * u ** 4 + 270 * u ** 3 - 180 * u ** 2 + 45 *
+            u) * math.sin(math.pi * v)
+    y_u = (640 * u ** 3 - 960 * u ** 2 + 320 * u)
+    y_v = 0
+    z_u = (-450 * u ** 4 + 900 * u ** 3 - 810 * u ** 2 + 360 *
+        u - 45) * math.sin(math.pi * v)
+    z_v = -math.pi * (
+            90 * u ** 5 - 225 * u ** 4 + 270 * u ** 3 - 180 * u ** 2 + 45 *
+            u) * math.cos(math.pi * v)
+
+    vector = [y_u * z_v - z_u * y_v, z_u * x_v - x_u * z_v, x_u * y_v - y_u * x_v]
+
+    length = math.sqrt(vector[0] ** 2 + vector[1] ** 2 + vector[2] ** 2)
+    if length == 0:
+        length = 1
+    vector = [vector[0] / length, vector[1] / length, vector[2] / length]
+
+    return vector
 
 
 def render(time):
@@ -176,8 +267,8 @@ def render(time):
     glRotatef(theta, 0.0, 1.0, 0.0)
 
     # square()
-    pyramid()
-
+    # pyramid()
+    egg(30)
     glFlush()
 
 
