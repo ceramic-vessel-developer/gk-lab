@@ -31,9 +31,14 @@ def compile_shaders():
         uniform mat4 M_matrix;
         uniform mat4 V_matrix;
         uniform mat4 P_matrix;
+        
+        float rand(vec2 co) {
+            return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+        }
 
         void main(void) {
-            gl_Position = P_matrix * V_matrix * M_matrix * ( position + (gl_InstanceID % 10) * vec4(1, 0, 0, 0) + (gl_InstanceID / 10) * vec4(0, -1, 0, 0));
+            gl_Position = P_matrix * V_matrix * M_matrix * ( position + (gl_InstanceID % 10) * vec4(1 ,0, 0, 0) + (gl_InstanceID / 10) * vec4(0, -1, 0, 0)
+            + (rand(vec2(gl_InstanceID,gl_VertexID))) * vec4(1 ,0, 0, 0) + (rand(vec2(gl_InstanceID,gl_VertexID))) * vec4(0, 1, 0, 0)+ (rand(vec2(gl_InstanceID,gl_VertexID))) * vec4(0, 0, 1, 0));
             //vertex_color = vec4(0.2, 0.9, 0.1, 1.0);
             vertex_color = color;
         }
@@ -234,7 +239,7 @@ def render(time):
     M_matrix = glm.rotate(glm.mat4(1.0), time, glm.vec3(1.0, 1.0, 0.0))
 
     V_matrix = glm.lookAt(
-        glm.vec3(0.0, 0.0, 10.0),
+        glm.vec3(0.0, 0.0, 15.0),
         glm.vec3(0.0, 0.0, 0.0),
         glm.vec3(0.0, 1.0, 0.0)
     )
